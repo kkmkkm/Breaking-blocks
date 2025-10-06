@@ -1,4 +1,3 @@
-/* --- bodyとゲームコンテナは変更なし --- */
 body {
     background-color: #f0f0f0;
     display: flex;
@@ -21,15 +20,26 @@ body {
     display: block;
 }
 
-/* --- ボタンの配置をブラウザウィンドウの左上に固定 --- */
+/* --- スタート画面/フルオーバーレイ --- */
+.full-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8); /* 半透明の黒で画面を覆う */
+    z-index: 50; /* キャンバスとボタンの間 */
+}
 
+/* --- ブラウザ左上の制御ボタン --- */
 .controls-overlay {
-    /* 【重要】absoluteからfixedに変更し、ブラウザウィンドウ基準で配置 */
     position: fixed; 
-    top: 10px;    /* ブラウザ上端から10px */
-    left: 10px;   /* ブラウザ左端から10px */
-    z-index: 100; /* 他の要素の上に表示 */
-    padding: 0;   /* paddingを削除 (top/leftで調整) */
+    top: 10px;
+    left: 10px;
+    z-index: 100;
     pointer-events: none; 
 }
 
@@ -39,7 +49,7 @@ body {
     gap: 5px;
 }
 
-/* --- メッセージ表示は変更なし --- */
+/* --- メッセージ表示 --- */
 .message-overlay {
     position: absolute;
     top: 0;
@@ -66,14 +76,21 @@ body {
 }
 
 button {
-    padding: 8px 15px;
-    font-size: 14px;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
     border: none;
     border-radius: 5px;
     background-color: #0095DD;
     color: white;
     transition: background-color 0.2s;
+    /* スタートボタンを少し大きく */
+    min-width: 150px; 
+}
+
+button#startButton {
+    font-size: 24px;
+    padding: 15px 30px;
 }
 
 button:hover {
