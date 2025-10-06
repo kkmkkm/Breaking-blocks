@@ -9,19 +9,23 @@
 <body>
     <div class="game-container">
         <canvas id="myCanvas" width="480" height="320"></canvas>
-
-        <div class="controls-overlay">
-            <div class="controls">
-                <button id="pauseButton">やめる (一時停止)</button>
-                <button id="resumeButton" class="hidden">続ける (再開)</button>
-            </div>
-        </div>
         
+        <div id="startScreen" class="full-overlay">
+            <button id="startButton">ゲームスタート</button>
+        </div>
+
         <div class="message-overlay">
              <div id="pauseMessage" class="message hidden">一時停止中</div>
         </div>
     </div>
     
+    <div class="controls-overlay">
+        <div class="controls">
+            <button id="pauseButton" class="hidden">やめる (一時停止)</button>
+            <button id="resumeButton" class="hidden">続ける (再開)</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
