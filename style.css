@@ -31,14 +31,14 @@ body {
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.8); /* 半透明の黒で画面を覆う */
-    z-index: 50; /* キャンバスとボタンの間 */
+    z-index: 50;
 }
 
 /* --- ブラウザ左上の制御ボタン --- */
 .controls-overlay {
-    position: fixed; 
-    top: 10px;
-    left: 10px;
+    position: fixed; /* ブラウザウィンドウに固定 */
+    top: 10px;    /* ブラウザ上端から10px */
+    left: 10px;   /* ブラウザ左端から10px */
     z-index: 100;
     pointer-events: none; 
 }
@@ -71,6 +71,7 @@ body {
     border-radius: 5px;
 }
 
+/* --- 汎用クラス --- */
 .hidden {
     display: none !important;
 }
@@ -84,7 +85,6 @@ button {
     background-color: #0095DD;
     color: white;
     transition: background-color 0.2s;
-    /* スタートボタンを少し大きく */
     min-width: 150px; 
 }
 
