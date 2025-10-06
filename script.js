@@ -46,17 +46,20 @@ function initializeGame() {
     for (let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
         for (let r = 0; r < brickRowCount; r++) {
-            bricks[c][r] = { x: 0, y: 0, status: 1 };
+            // ブロックの座標をここで計算し、保存しておく
+            const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+            const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+            bricks[c][r] = { x: brickX, y: brickY, status: 1 };
         }
     }
     score = 0;
-    gamePaused = false; // ゲーム開始準備完了
+    gamePaused = false; // ゲーム開始準備完了ではありませんが、一時的にfalse
 
-    // ★【修正点】ゲーム開始前に一度だけ描画を行い、盤面を見せる
+    // ★【修正点】キャンバスをクリアし、初期状態を**静的**に描画
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBricks();
     drawPaddle();
-    drawBall(); // ボールは開始時にパドル上にある状態
+    drawBall(); 
     drawScore();
 }
 
@@ -77,12 +80,15 @@ function startGame() {
     startScreen.classList.add('hidden'); // スタート画面を非表示
     pauseButton.classList.remove('hidden'); // 一時停止ボタンを表示
     
-    initializeGame(); // ゲームの状態を初期化（ここで最初の描画も行われる）
+    // ゲームの初期化と最初の描画を実行
+    initializeGame(); 
     
-    // 【修正点】draw() を呼ぶ前に gamePaused を false に設定
+    // gamePausedフラグをリセットし、ゲームループを開始
     gamePaused = false; 
-    draw(); // ゲームループを開始
+    draw(); 
 }
+
+// ... (keyDownHandler, keyUpHandler, mouseMoveHandler は変更なし)
 
 function keyDownHandler(e) {
     if (gamePaused) return; 
@@ -120,7 +126,7 @@ function mouseMoveHandler(e) {
     }
 }
 
-// --- 暫停・再開ロジック ---
+// --- 暫停・再開ロジック (変更なし) ---
 
 function pauseGame() {
     if (!gamePaused) {
@@ -145,7 +151,7 @@ function resumeGame() {
     }
 }
 
-// --- ゲームロジックと描画関数 (変更なし) ---
+// --- ゲームロジックと描画関数 ---
 
 function collisionDetection() {
     for (let c = 0; c < brickColumnCount; c++) {
@@ -186,16 +192,14 @@ function drawPaddle() {
     ctx.closePath();
 }
 
+// drawBricks関数は、initializeGame内でブロック座標が設定されているため、描画に専念
 function drawBricks() {
     for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
-            if (bricks[c][r].status === 1) {
-                const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-                const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
-                bricks[c][r].x = brickX;
-                bricks[c][r].y = brickY;
+            const b = bricks[c][r]; // 既に座標が設定されている
+            if (b.status === 1) {
                 ctx.beginPath();
-                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                ctx.rect(b.x, b.y, brickWidth, brickHeight);
                 ctx.fillStyle = "#0095DD";
                 ctx.fill();
                 ctx.closePath();
@@ -214,52 +218,44 @@ function drawScore() {
 function draw() {
     if (gamePaused) return;
 
-    // 1. 前のフレームをクリア
+    // ゲームのロジックと描画を続行
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 2. 各要素を描画
+    // ... (以下省略、前回コードと同じ)
     drawBricks();
     drawBall();
     drawPaddle();
     drawScore();
     
-    // 3. 当たり判定のチェック
     collisionDetection();
-
-    // ボールの壁との当たり判定
+    // ボールと壁、パドルの当たり判定、位置更新...
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
     }
     if (y + dy < ballRadius) {
         dy = -dy;
     } else if (y + dy > canvas.height - ballRadius) {
-        // パドルとの当たり判定
         if (x > paddleX && x < paddleX + paddleWidth) {
             dy = -dy;
             y = canvas.height - ballRadius - paddleHeight;
         } else {
-            // ゲームオーバー処理
             alert(`GAME OVER\n最終スコア: ${score}`);
             document.location.reload(); 
             return; 
         }
     }
 
-    // パドルのキーボード移動
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
         paddleX += paddleSpeed;
     } else if (leftPressed && paddleX > 0) {
         paddleX -= paddleSpeed;
     }
 
-    // ボールの位置を更新
     x += dx;
     y += dy;
 
-    // 次の描画フレームを要求
     animationFrameId = requestAnimationFrame(draw);
 }
 
-// 初期状態: ゲームはまだ開始しない。スタートボタンが押されるのを待つ。
-// 画面が真っ白な場合は、ここで一度 initializeGame() の内容（ただし draw() を呼ばない）を実行して、
-// キャンバスの背景色だけは表示させる方法もありますが、今回はスタート画面オーバーレイで対処します。
+// 【重要】最初の描画（スタート画面の表示）
+// ゲームが自動実行されないようにするため、initializeGameやdrawは呼ばず、
+// スタート画面のオーバーレイのみが表示されていることを確認してください。
