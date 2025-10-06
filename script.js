@@ -9,7 +9,7 @@ const pauseButton = document.getElementById("pauseButton");
 const resumeButton = document.getElementById("resumeButton");
 const pauseMessage = document.getElementById("pauseMessage");
 
-// --- ゲーム状態変数 --- (初期値の設定のみ)
+// --- ゲーム状態変数 --- 
 let x, y, dx, dy;
 const ballRadius = 10;
 const paddleHeight = 10;
@@ -28,10 +28,10 @@ const brickOffsetLeft = 30;
 let score = 0;
 let bricks = []; 
 let animationFrameId;
-let gamePaused = true; // 初期状態は一時停止（スタート画面）
+let gamePaused = true; // ★初期状態は一時停止（スタート画面が表示される）
 
 /**
- * ゲームの状態を初期化し、最初の描画を行う関数
+ * ゲームの状態を初期化し、最初の静的描画を行う関数
  */
 function initializeGame() {
     // ボールとパドルの初期位置設定
@@ -41,21 +41,19 @@ function initializeGame() {
     dy = -2;
     paddleX = (canvas.width - paddleWidth) / 2;
 
-    // ブロックの初期化
+    // ブロックの初期化と座標計算
     bricks = [];
     for (let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
         for (let r = 0; r < brickRowCount; r++) {
-            // ブロックの座標をここで計算し、保存しておく
             const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
             const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
             bricks[c][r] = { x: brickX, y: brickY, status: 1 };
         }
     }
     score = 0;
-    gamePaused = false; // ゲーム開始準備完了ではありませんが、一時的にfalse
-
-    // ★【修正点】キャンバスをクリアし、初期状態を**静的**に描画
+    
+    // キャンバスをクリアし、初期状態を**静的**に描画
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBricks();
     drawPaddle();
@@ -77,18 +75,17 @@ startButton.addEventListener("click", startGame);
  * スタートボタンが押されたときの処理
  */
 function startGame() {
-    startScreen.classList.add('hidden'); // スタート画面を非表示
-    pauseButton.classList.remove('hidden'); // 一時停止ボタンを表示
-    
+    // スタート画面とボタンの切り替え
+    startScreen.classList.add('hidden'); 
+    pauseButton.classList.remove('hidden'); 
+
     // ゲームの初期化と最初の描画を実行
     initializeGame(); 
     
-    // gamePausedフラグをリセットし、ゲームループを開始
+    // ゲームループを開始
     gamePaused = false; 
     draw(); 
 }
-
-// ... (keyDownHandler, keyUpHandler, mouseMoveHandler は変更なし)
 
 function keyDownHandler(e) {
     if (gamePaused) return; 
@@ -126,7 +123,7 @@ function mouseMoveHandler(e) {
     }
 }
 
-// --- 暫停・再開ロジック (変更なし) ---
+// --- 暫停・再開ロジック ---
 
 function pauseGame() {
     if (!gamePaused) {
@@ -192,11 +189,10 @@ function drawPaddle() {
     ctx.closePath();
 }
 
-// drawBricks関数は、initializeGame内でブロック座標が設定されているため、描画に専念
 function drawBricks() {
     for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
-            const b = bricks[c][r]; // 既に座標が設定されている
+            const b = bricks[c][r];
             if (b.status === 1) {
                 ctx.beginPath();
                 ctx.rect(b.x, b.y, brickWidth, brickHeight);
@@ -218,16 +214,19 @@ function drawScore() {
 function draw() {
     if (gamePaused) return;
 
-    // ゲームのロジックと描画を続行
+    // 1. 前のフレームをクリア
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ... (以下省略、前回コードと同じ)
+
+    // 2. 各要素を描画
     drawBricks();
     drawBall();
     drawPaddle();
     drawScore();
     
+    // 3. 当たり判定のチェック
     collisionDetection();
-    // ボールと壁、パドルの当たり判定、位置更新...
+
+    // ボールと壁、パドルの当たり判定、位置更新
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
     }
@@ -244,18 +243,19 @@ function draw() {
         }
     }
 
+    // パドルのキーボード移動
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
         paddleX += paddleSpeed;
     } else if (leftPressed && paddleX > 0) {
         paddleX -= paddleSpeed;
     }
 
+    // ボールの位置を更新
     x += dx;
     y += dy;
 
+    // 次の描画フレームを要求
     animationFrameId = requestAnimationFrame(draw);
 }
 
-// 【重要】最初の描画（スタート画面の表示）
-// ゲームが自動実行されないようにするため、initializeGameやdrawは呼ばず、
-// スタート画面のオーバーレイのみが表示されていることを確認してください。
+// 最初の起動時、ゲームは開始しない。
